@@ -19,6 +19,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import CartContextProvider from "./Context/CartContext";
 import { Toaster } from 'react-hot-toast';
 import { SearchProvider } from "./Context/SearchContext";
+import ResetPassword from "./components/ResetPassword/ResetPassword";
 
 const query = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,7 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "about", element: <About /> },
+      { path: "reset-password", element: <ResetPassword /> },
       { path: "*", element: <Notfound /> },
     ],
   },

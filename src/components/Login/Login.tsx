@@ -4,24 +4,29 @@ import axios from 'axios';
 import { NavLink, useNavigate } from "react-router-dom";
 import * as Yup from 'yup';
 import { UserContext } from "../../Context/UserContext";
+import { useSearch } from "../../Context/SearchContext";
 
 export default function Login() {
   let navigate = useNavigate();
-  
+
   // Consume the UserContext
   const userContext = useContext(UserContext);
-  
+
   // Ensure that userContext is not undefined
   if (!userContext) {
-    throw new Error("UserContext is undefined, make sure to wrap your components with UserContextProvider");
+    throw new Error(
+      "UserContext is undefined, make sure to wrap your components with UserContextProvider"
+    );
   }
 
   const { setUserLogin } = userContext; // Destructure setUserLogin from the context
 
-  const [apiError, setError] = useState('');
+  const { setResetEmail, setResetStep } = useSearch();
+
+  const [apiError, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
+  const [resetEmail, setResetEmailState] = useState("");
   const [resetMessage, setResetMessage] = useState("");
 
   const handleLogin = (formValues: any) => {
@@ -29,10 +34,10 @@ export default function Login() {
     axios
       .post(`https://ecommerce.routemisr.com/api/v1/auth/signin`, formValues)
       .then((response) => {
-        if (response?.data?.message === 'success') {
-          localStorage.setItem('userToken', response.data.token);
+        if (response?.data?.message === "success") {
+          localStorage.setItem("userToken", response.data.token);
           setUserLogin(response.data.token);
-          navigate('/');
+          navigate("/");
           setIsLoading(false);
         }
       })
@@ -46,31 +51,39 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post(
+      await axios.post(
         "https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords",
         { email: resetEmail }
       );
-      setResetMessage(response.data.message);
-      setIsLoading(false);
+      setResetEmail(resetEmail);
+      setResetStep("otp");
+      setResetMessage("OTP has been sent to your email");
+      // Add navigation after successful OTP send
+      setTimeout(() => {
+        navigate("/reset-password");
+        setShowForgotPassword(false);
+      }, 1500);
     } catch (error: any) {
       setResetMessage(error.response?.data?.message || "An error occurred");
+    } finally {
       setIsLoading(false);
     }
-    setTimeout(() => setShowForgotPassword(false), 3000);
   };
 
   const validationSchema = Yup.object().shape({
-    email: Yup.string().email('Email is Invalid').required('Email is Required'),
-    password: Yup.string().matches(
-      /^(?=.*?[0-9])(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[^0-9A-Za-z]).{8,32}$/,
-      'must be 8 and has a capital letter, small letter, number, special char'
-    ).required('Password is required'),
+    email: Yup.string().email("Email is Invalid").required("Email is Required"),
+    password: Yup.string()
+      .matches(
+        /^(?=.*?[0-9])(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[^0-9A-Za-z]).{8,32}$/,
+        "must be 8 and has a capital letter, small letter, number, special char"
+      )
+      .required("Password is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
     validationSchema,
     onSubmit: handleLogin,
@@ -182,7 +195,7 @@ export default function Login() {
                 <input
                   type="email"
                   value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
+                  onChange={(e) => setResetEmailState(e.target.value)}
                   placeholder="Enter your email"
                   className="w-full p-2 border border-gray-300 rounded mb-4"
                   required

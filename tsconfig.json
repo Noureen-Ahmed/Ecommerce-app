@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",                      // Use ESNext for module system
+    "target": "ESNext",                      // Use ESNext for output target
+    "allowSyntheticDefaultImports": true,    // Allow synthetic default imports
+    "noEmit": true,                          // Don't emit any output (because Vite will handle that)
+    "allowImportingTsExtensions": true,      // Allow TypeScript imports without file extensions (.tsx)
+    "lib": ["dom", "es2015"],                // Include DOM and ES2015 libraries
+    "jsx": "react-jsx",                     // Use the React JSX Transform (React 17+)
+    "moduleResolution": "bundler",           // Use bundler module resolution (Vite/Webpack)
+    "esModuleInterop": true,                 // Enable interop between CommonJS and ES Modules
+    "strict": true,                          // Enable all strict type-checking options
+    "skipLibCheck": true,                    // Skip checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Ensure consistent file casing
+    "noImplicitAny": true,                   // Disallow the use of `any` type
+    "resolveJsonModule": true                // Allow importing JSON files
+  },
+  "include": [
+    "src/**/*",
+    "src/types/images.d.ts"
+  ]
+}

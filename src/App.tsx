@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import CartContextProvider from "./Context/CartContext";
 import { Toaster } from 'react-hot-toast';
+import { SearchProvider } from "./Context/SearchContext";
 
 const query = new QueryClient({
   defaultOptions: {
@@ -90,15 +91,17 @@ const router = createBrowserRouter([
 
 const App: React.FC = () => {
   return (
-    <CartContextProvider>
-      <QueryClientProvider client={query}>
-        <UserContextProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-          <RouterProvider router={router} />
-          <Toaster />
-        </UserContextProvider>
-      </QueryClientProvider>
-    </CartContextProvider>
+    <SearchProvider>
+      <CartContextProvider>
+        <QueryClientProvider client={query}>
+          <UserContextProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <RouterProvider router={router} />
+            <Toaster />
+          </UserContextProvider>
+        </QueryClientProvider>
+      </CartContextProvider>
+    </SearchProvider>
   );
 };
 

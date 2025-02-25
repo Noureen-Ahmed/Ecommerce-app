@@ -1,23 +1,11 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import ClipLoader from 'react-spinners/ClipLoader';
-import useProducts from '../../Hooks/useProducts'; // Adjust the path to where your hook is
-
-// Define the Product type based on the response structure
-interface Product {
-  id: number;
-  imageCover: string;
-  title: string;
-  category: { name: string };
-  price: number;
-  ratingsAverage: number;
-}
+import React from "react";
+import { Link } from "react-router-dom";
+import ClipLoader from "react-spinners/ClipLoader";
+import useProducts from "../../Hooks/useProducts";
 
 const Products: React.FC = () => {
-  // Destructure data, isLoading, isError, and error from useProducts hook
   const { data, isError, isLoading, error } = useProducts();
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="py-8 w-full flex justify-center">
@@ -26,7 +14,6 @@ const Products: React.FC = () => {
     );
   }
 
-  // Error state
   if (isError) {
     return (
       <div className="py-8 w-full flex justify-center">
@@ -35,37 +22,45 @@ const Products: React.FC = () => {
     );
   }
 
-  // Ensure we have product data and map over it correctly
   return (
-    <div className="row">
-      {/* Safely access data using optional chaining */}
-      {data?.data?.map((product: Product) => (
-        <div key={product.id} className="w-1/4 px-4">
-          <div className="product py-4">
-            <Link to={`/productdetails/${product.id}/${product.category.name}`}>
-              <img
-                className="w-full"
-                src={product.imageCover}
-                alt={product.title}
-              />
-              <span className="block font-light text-green-600 mt-2">
-                {product.category.name}
-              </span>
-              <h3 className="text-lg font-normal text-gray-800 mb-4">
-                {product.title.split(' ').slice(0, 2).join(' ')}
-              </h3>
-              <div className="flex justify-between items-center">
-                <span>{product.price} EGP</span>
-                <span>
-                  {product.ratingsAverage}{' '}
-                  <i className="fas fa-star text-yellow-400"></i>
-                </span>
-              </div>
-              <button className="btn">Add to cart</button>
-            </Link>
+    <div className="container mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {data?.data?.map((product) => (
+          <div key={product._id} className="px-4">
+            <div className="product py-4 bg-white rounded-lg shadow-md">
+              <Link
+                to={`/productdetails/${product._id}/${product.category.name}`}
+              >
+                <img
+                  className="w-full h-48 object-cover rounded-t-lg"
+                  src={product.imageCover}
+                  alt={product.title}
+                />
+                <div className="p-4">
+                  <span className="block font-light text-green-600 mb-2">
+                    {product.category?.name || product.category}
+                  </span>
+                  <h3 className="text-lg font-normal text-gray-800 mb-2">
+                    {product.title.split(" ").slice(0, 2).join(" ")}
+                  </h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold">
+                      {product.price} EGP
+                    </span>
+                    <span>
+                      {product.ratingsAverage}{" "}
+                      <i className="fas fa-star text-yellow-400"></i>
+                    </span>
+                  </div>
+                </div>
+                <button className="w-full mt-2 py-2 bg-green-500 text-white rounded-b-lg hover:bg-green-600 transition-colors">
+                  Add to cart
+                </button>
+              </Link>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

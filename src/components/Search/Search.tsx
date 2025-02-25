@@ -1,55 +1,42 @@
-import React, { useEffect } from "react";
-import axios from "axios";
+import React from "react";
 import { useSearch } from "../../Context/SearchContext";
 import { Link } from "react-router-dom";
+import useProducts from "../../Hooks/useProducts";
+
+// Fuzzy search helper function
+const fuzzyMatch = (str: string, pattern: string): boolean => {
+  pattern = pattern.toLowerCase();
+  str = str.toLowerCase();
+
+  let patternIdx = 0;
+  let strIdx = 0;
+
+  while (patternIdx < pattern.length && strIdx < str.length) {
+    if (pattern[patternIdx] === str[strIdx]) {
+      patternIdx++;
+    }
+    strIdx++;
+  }
+
+  return patternIdx === pattern.length;
+};
 
 export default function Search() {
-  const {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    setSearchResults,
-    isSearching,
-    setIsSearching,
-  } = useSearch();
+  const { searchQuery, setSearchQuery } = useSearch();
+  const { data: productsData, isLoading } = useProducts();
 
-  useEffect(() => {
-    const searchProducts = async () => {
-      if (searchQuery.length >= 2) {
-        setIsSearching(true);
-        try {
-          // Fixed API endpoint
-          const response = await axios.get(
-            `https://ecommerce.routemisr.com/api/v1/products`,
-            {
-              params: {
-                sort: "-createdAt",
-                limit: 10,
-                "title[regex]": searchQuery,
-              },
-            }
-          );
+  // Filter products based on search query
+  const filteredProducts = React.useMemo(() => {
+    if (!searchQuery || !productsData?.data) return [];
 
-          // Check if response.data exists and has products
-          if (response.data && response.data.data) {
-            setSearchResults(response.data.data);
-          } else {
-            setSearchResults([]);
-          }
-        } catch (error) {
-          console.error("Search error:", error);
-          setSearchResults([]);
-        } finally {
-          setIsSearching(false);
-        }
-      } else {
-        setSearchResults([]);
-      }
-    };
-
-    const debounceSearch = setTimeout(searchProducts, 500); // Increased debounce time
-    return () => clearTimeout(debounceSearch);
-  }, [searchQuery, setSearchResults, setIsSearching]);
+    return productsData.data
+      .filter(
+        (product) =>
+          fuzzyMatch(product.title, searchQuery) ||
+          fuzzyMatch(product.category.name, searchQuery)
+      )
+      .slice(0, 10); // Limit to 10 results
+  }, [searchQuery, productsData]);
 
   return (
     <div className="relative w-full max-w-xl mx-auto px-4 py-2">
@@ -68,17 +55,17 @@ export default function Search() {
 
       {searchQuery.length >= 2 && (
         <div className="absolute top-full left-0 right-0 bg-white mt-1 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-          {isSearching ? (
+          {isLoading ? (
             <div className="p-4 text-center">
               <i className="fas fa-spinner fa-spin mr-2"></i>
-              Searching...
+              Loading...
             </div>
-          ) : searchResults.length > 0 ? (
+          ) : filteredProducts.length > 0 ? (
             <div className="p-2">
-              {searchResults.map((product: any) => (
+              {filteredProducts.map((product) => (
                 <Link
-                  key={product._id}
-                  to={`/productdetails/${product._id}/${product.category}`}
+                  key={product.id}
+                  to={`/productdetails/${product.id}/${product.category.name}`}
                   className="flex items-center p-2 hover:bg-gray-100 rounded"
                 >
                   <img

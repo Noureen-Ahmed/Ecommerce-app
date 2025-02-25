@@ -21,6 +21,8 @@ import { Toaster } from 'react-hot-toast';
 import { SearchProvider } from "./Context/SearchContext";
 import ResetPassword from "./components/ResetPassword/ResetPassword";
 import Checkout from "./components/Checkout/Checkout";
+import WishlistContextProvider from "./Context/WishlistContext";
+import Wishlist from "./pages/Wishlist";
 
 const query = new QueryClient({
   defaultOptions: {
@@ -91,6 +93,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "wishlist",
+        element: (
+          <ProtectedRoute>
+            <Wishlist />
+          </ProtectedRoute>
+        ),
+      },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "about", element: <About /> },
@@ -104,13 +114,15 @@ const App: React.FC = () => {
   return (
     <SearchProvider>
       <CartContextProvider>
-        <QueryClientProvider client={query}>
-          <UserContextProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <RouterProvider router={router} />
-            <Toaster />
-          </UserContextProvider>
-        </QueryClientProvider>
+        <WishlistContextProvider>
+          <QueryClientProvider client={query}>
+            <UserContextProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <RouterProvider router={router} />
+              <Toaster />
+            </UserContextProvider>
+          </QueryClientProvider>
+        </WishlistContextProvider>
       </CartContextProvider>
     </SearchProvider>
   );

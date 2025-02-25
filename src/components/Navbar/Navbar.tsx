@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../Context/UserContext';
 import { CartContext } from "../../Context/CartContext";
+import { FaHeart } from "react-icons/fa";
 
 interface UserContextType {
   userLogin: string | null;
@@ -9,7 +10,9 @@ interface UserContextType {
 }
 
 export default function Navbar() {
-  const { userLogin, setUserLogin } = useContext<UserContextType | undefined>(UserContext)!;
+  const { userLogin, setUserLogin } = useContext<UserContextType | undefined>(
+    UserContext
+  )!;
   const { setCart } = useContext(CartContext)!;
   const navigate = useNavigate();
 
@@ -49,11 +52,23 @@ export default function Navbar() {
         </div>
         <div className="flex">
           <ul className="flex flex-col lg:flex-row justify-around m-0 p-0 pl-10">
-            <li className="text-md mx-4 text-slate-900 font-normal">
-              <NavLink to={"/cart"}>
-                <i className="fa-solid fa-cart-shopping"></i>
-              </NavLink>
-            </li>
+            {userLogin !== null && (
+              <>
+                <li className="text-md mx-4 text-slate-900 font-normal">
+                  <NavLink
+                    to={"/wishlist"}
+                    className="hover:text-red-500 transition-colors"
+                  >
+                    Wishlist
+                  </NavLink>
+                </li>
+                <li className="text-md mx-4 text-slate-900 font-normal">
+                  <NavLink to={"/cart"}>
+                    <i className="fa-solid fa-cart-shopping"></i>
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
           <ul className="flex flex-col lg:flex-row justify-around m-0 p-0">
             {userLogin == null ? (

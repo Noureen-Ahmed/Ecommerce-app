@@ -3,7 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Slider from "react-slick";
 import { CartContext } from "../../Context/CartContext";
+import { WishlistContext } from "../../Context/WishlistContext";
 import toast from "react-hot-toast";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 // Define types for product and related products
 interface Product {
@@ -26,9 +28,15 @@ export default function ProductDetails() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const cartContext = useContext(CartContext);
+  const wishlistContext = useContext(WishlistContext);
+
   if (!cartContext)
     throw new Error("CartContext must be used within CartProvider");
+  if (!wishlistContext)
+    throw new Error("WishlistContext must be used within WishlistProvider");
+
   const { addToCart } = cartContext;
+  const { wishlist, addToWishlist, removeFromWishlist } = wishlistContext;
 
   // Settings for the slider component
   const settings = {
@@ -91,6 +99,25 @@ export default function ProductDetails() {
     }
   };
 
+  const isInWishlist = wishlist.some((item) => item.id === productDetails?.id);
+
+  const handleWishlistToggle = async () => {
+    if (!productDetails) return;
+
+    try {
+      if (isInWishlist) {
+        await removeFromWishlist(productDetails.id);
+        toast.success("Removed from wishlist");
+      } else {
+        await addToWishlist(productDetails.id);
+        toast.success("Added to wishlist");
+      }
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <div className="row">
@@ -115,22 +142,35 @@ export default function ProductDetails() {
               <i className="fas fa-star text-yellow-400"></i>{" "}
             </span>
           </div>
-          <button
-            className={`btn ${
-              isAddingToCart ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            onClick={handleAddToCart}
-            disabled={isAddingToCart}
-          >
-            {isAddingToCart ? (
-              <>
-                <i className="fas fa-spinner fa-spin mr-2"></i>
-                Adding...
-              </>
-            ) : (
-              "Add to cart"
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              className={`btn ${
+                isAddingToCart ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Adding...
+                </>
+              ) : (
+                "Add to cart"
+              )}
+            </button>
+            <button
+              onClick={handleWishlistToggle}
+              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                isInWishlist
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {isInWishlist ? <FaHeart /> : <FaRegHeart />}
+              {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            </button>
+          </div>
         </div>
       </div>
 

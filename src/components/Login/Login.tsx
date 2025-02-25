@@ -20,6 +20,9 @@ export default function Login() {
 
   const [apiError, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
 
   const handleLogin = (formValues: any) => {
     setIsLoading(true);
@@ -37,6 +40,23 @@ export default function Login() {
         setIsLoading(false);
         setError(apiResponse?.response?.data?.message);
       });
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        "https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords",
+        { email: resetEmail }
+      );
+      setResetMessage(response.data.message);
+      setIsLoading(false);
+    } catch (error: any) {
+      setResetMessage(error.response?.data?.message || "An error occurred");
+      setIsLoading(false);
+    }
+    setTimeout(() => setShowForgotPassword(false), 3000);
   };
 
   const validationSchema = Yup.object().shape({
@@ -60,7 +80,10 @@ export default function Login() {
     <>
       <div className="py-6 max-w-md mx-auto text-left">
         {apiError ? (
-          <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+          <div
+            className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
             {apiError}
           </div>
         ) : null}
@@ -87,7 +110,10 @@ export default function Login() {
             </label>
           </div>
           {formik.errors.email && formik.touched.email ? (
-            <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <div
+              className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+              role="alert"
+            >
               {formik.errors.email}
             </div>
           ) : null}
@@ -111,20 +137,28 @@ export default function Login() {
             </label>
           </div>
           {formik.errors.password && formik.touched.password ? (
-            <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <div
+              className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+              role="alert"
+            >
               {formik.errors.password}
             </div>
           ) : null}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-green-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
           <div className="flex items-center">
             <button
               type="submit"
               className="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
             >
-              {isLoading ? (
-                <i className="fas fa-spinner fa-spin"></i>
-              ) : (
-                "Login"
-              )}
+              {isLoading ? <i className="fas fa-spinner fa-spin"></i> : "Login"}
             </button>
             <p className="pl-4">
               Don't have an account yet?{" "}
@@ -135,6 +169,45 @@ export default function Login() {
           </div>
         </form>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg max-w-md w-full">
+            <h3 className="text-2xl font-bold mb-4">Reset Password</h3>
+            {resetMessage ? (
+              <p className="text-green-600 mb-4">{resetMessage}</p>
+            ) : (
+              <form onSubmit={handleForgotPassword}>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  required
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Sending..." : "Reset Password"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

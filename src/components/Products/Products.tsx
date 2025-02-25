@@ -53,7 +53,7 @@ const Products: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <button className="w-full mt-2 py-2 bg-green-500 text-white rounded-b-lg hover:bg-green-600 transition-colors">
+                <button className="w-full mt-2 py-2 bg-green-500 text-white rounded-b-lg hover:bg-green-600 transition-colors cursor-pointer">
                   Add to cart
                 </button>
               </Link>

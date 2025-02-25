@@ -20,6 +20,7 @@ import CartContextProvider from "./Context/CartContext";
 import { Toaster } from 'react-hot-toast';
 import { SearchProvider } from "./Context/SearchContext";
 import ResetPassword from "./components/ResetPassword/ResetPassword";
+import Checkout from "./components/Checkout/Checkout";
 
 const query = new QueryClient({
   defaultOptions: {
@@ -79,6 +80,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Categories />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "checkout",
+        element: (
+          <ProtectedRoute>
+            <Checkout />
           </ProtectedRoute>
         ),
       },

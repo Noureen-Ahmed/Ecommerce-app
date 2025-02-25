@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Slider from "react-slick";
+import { CartContext } from "../../Context/CartContext";
+import toast from "react-hot-toast";
 
 // Define types for product and related products
 interface Product {
@@ -18,10 +20,15 @@ interface Product {
 }
 
 export default function ProductDetails() {
-  let { id, category } = useParams<{ id: string; category: string }>();
-  
+  const { id, category } = useParams<{ id: string; category: string }>();
   const [productDetails, setProductDetails] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  const cartContext = useContext(CartContext);
+  if (!cartContext)
+    throw new Error("CartContext must be used within CartProvider");
+  const { addToCart } = cartContext;
 
   // Settings for the slider component
   const settings = {
@@ -65,6 +72,25 @@ export default function ProductDetails() {
     }
   }, [id, category]);
 
+  const handleAddToCart = async () => {
+    if (!productDetails?.id) return;
+
+    setIsAddingToCart(true);
+    try {
+      const response = await addToCart(productDetails.id);
+      if (response.data?.status === "success") {
+        toast.success("Product added to cart successfully!");
+      } else {
+        toast.error("Failed to add product to cart");
+      }
+    } catch (error) {
+      toast.error("Error adding product to cart");
+      console.error(error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <>
       <div className="row">
@@ -89,7 +115,22 @@ export default function ProductDetails() {
               <i className="fas fa-star text-yellow-400"></i>{" "}
             </span>
           </div>
-          <button className="btn">add to cart</button>
+          <button
+            className={`btn ${
+              isAddingToCart ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            onClick={handleAddToCart}
+            disabled={isAddingToCart}
+          >
+            {isAddingToCart ? (
+              <>
+                <i className="fas fa-spinner fa-spin mr-2"></i>
+                Adding...
+              </>
+            ) : (
+              "Add to cart"
+            )}
+          </button>
         </div>
       </div>
 
@@ -97,7 +138,9 @@ export default function ProductDetails() {
         {relatedProducts.map((product) => (
           <div key={product.id} className="w-1/6">
             <div className="product py-4">
-              <Link to={`/productdetails/${product.id}/${product.category.name}`}>
+              <Link
+                to={`/productdetails/${product.id}/${product.category.name}`}
+              >
                 <img
                   className="w-full"
                   src={product.imageCover}
@@ -117,7 +160,7 @@ export default function ProductDetails() {
                   </span>
                 </div>
               </Link>
-              <button className="btn">add to cart</button>
+              <button className="btn cursor-pointer mt-2">add to cart</button>
             </div>
           </div>
         ))}

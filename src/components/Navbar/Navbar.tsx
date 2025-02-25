@@ -55,16 +55,16 @@ export default function Navbar() {
             {userLogin !== null && (
               <>
                 <li className="text-md mx-4 text-slate-900 font-normal">
+                  <NavLink to={"/cart"}>
+                    <i className="fa-solid fa-cart-shopping"></i>
+                  </NavLink>
+                </li>
+                <li className="text-md mx-4 text-slate-900 font-normal">
                   <NavLink
                     to={"/wishlist"}
                     className="hover:text-red-500 transition-colors"
                   >
                     Wishlist
-                  </NavLink>
-                </li>
-                <li className="text-md mx-4 text-slate-900 font-normal">
-                  <NavLink to={"/cart"}>
-                    <i className="fa-solid fa-cart-shopping"></i>
                   </NavLink>
                 </li>
               </>
